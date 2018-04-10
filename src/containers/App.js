@@ -1,10 +1,42 @@
-import React, { Component } from "react";
+import React, { PureComponent } from "react";
 import classes from "./App.css";
 import Persons from "../components/Persons/Persons";
 import Cockpit from "../components/Cockpit/Cockpit";
+import WithClass from "../hoc/WithClass";
 
-class App extends Component {
-  state = {
+class App extends PureComponent {
+  constructor(props) {
+    super(props);
+    console.log("[App.js] inside constructor", props);
+    this.state = {
+      persons: [
+        { id: "asfa1", name: "Max", age: 28 },
+        { id: "vasdf1", name: "Manu", age: 29 },
+        { id: "asdf11", name: "Stephanie", age: 26 }
+      ],
+      otherState: "some other value",
+      showPersons: false,
+      toggleClicked: 0
+    };
+  }
+
+  componentWillMount() {
+    console.log("[App.js] inside componentWillMount");
+  }
+
+  componentDidMount() {
+    console.log("[App.js] inside componentDidMount");
+  }
+
+  // shouldComponentUpdate(nextProps, nextState) {
+  //   console.log("[UPDATE App.js] inside shouldComponentUpdate");
+  //   return (
+  //     nextState.persons !== this.state.persons ||
+  //     nextState.showPersons !== this.state.showPersons
+  //   );
+  // }
+
+  /* state = {
     persons: [
       { id: "asfa1", name: "Max", age: 28 },
       { id: "vasdf1", name: "Manu", age: 29 },
@@ -12,7 +44,7 @@ class App extends Component {
     ],
     otherState: "some other value",
     showPersons: false
-  };
+  }; */
 
   nameChangedHandler = (event, id) => {
     const personIndex = this.state.persons.findIndex(p => {
@@ -42,10 +74,16 @@ class App extends Component {
 
   togglePersonsHandler = () => {
     const doesShow = this.state.showPersons;
-    this.setState({ showPersons: !doesShow });
+    this.setState((prevState, props) => {
+      return {
+        showPersons: !doesShow,
+        toggleClicked: prevState.toggleClicked + 1
+      };
+    });
   };
 
   render() {
+    console.log("[App.js] inside render");
     let persons = null;
 
     if (this.state.showPersons) {
@@ -59,7 +97,14 @@ class App extends Component {
     }
 
     return (
-      <div className={classes.App}>
+      <WithClass classes={classes.App}>
+        <button
+          onClick={() => {
+            this.setState({ showPersons: true });
+          }}
+        >
+          Show Persons
+        </button>
         <Cockpit
           appTitle={this.props.title}
           persons={this.state.persons}
@@ -67,7 +112,7 @@ class App extends Component {
           clicked={this.togglePersonsHandler}
         />
         {persons}
-      </div>
+      </WithClass>
     );
     // return React.createElement('div', {className: 'App'}, React.createElement('h1', null, 'Does this work now?'));
   }
